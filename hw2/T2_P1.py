@@ -21,11 +21,11 @@ def basis1(x):
 
 # TODO: Implement this
 def basis2(x):
-    return None
+    return np.stack([np.ones(len(x)), x,x**2,x**3], axis=1)
 
 # TODO: Implement this
 def basis3(x):
-    return None
+    return np.stack([np.ones(len(x)), x,x**2,x**3,x**4,x**5], axis=1)
 
 class LogisticRegressor:
     def __init__(self, eta, runs):
@@ -36,6 +36,8 @@ class LogisticRegressor:
     # NOTE: Just to show how to make 'private' methods
     def __dummyPrivateMethod(self, input):
         return None
+    
+    
 
     # TODO: Optimize w using gradient descent
     def fit(self, x, y, w_init=None):
@@ -44,10 +46,34 @@ class LogisticRegressor:
             self.W = w_init
         else:
             self.W = np.random.rand(x.shape[1], 1)
+        
+        nrows=x.shape[0]
+        #print("nrows:",nrows)
+        
+        
+        for irun in range(self.runs):
+            sum_error=0
+           
+            yhat=self.predict(x)
+            gradient=np.dot(x.T,(yhat-y))/y.shape[0]
+            print("gradientshape:",gradient)
+            #print("Wshape:",self.W.shape)
+            #print("yhat:",yhat.shape,"y:",y[irow,:],"xrow",x[irow,:].T.shape)
+            #deltaW=self.eta*x[irow,:]*(y[irow,:]-yhat)
+            #print("deltaW:",deltaW)
+            #deltaW.shape=self.W.shape
+            #print("deltaW:",deltaW)
+            self.W-=self.eta*gradient
+
+                #print("Wshape:",self.W.shape)
+            #print("irun:",irun,"error:",sum_error)
+                
+            
+        
 
     # TODO: Fix this method!
     def predict(self, x):
-        return np.dot(x, self.W)
+        return sigmoid(np.dot(x, self.W))
 
 # Function to visualize prediction lines
 # Takes as input last_x, last_y, [list of models], basis function, title

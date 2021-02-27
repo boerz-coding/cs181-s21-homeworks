@@ -41,7 +41,7 @@ def checker_t2_p1():
             basis1_checker = "Pass"
         else:
             basis1_checker = "Fail"
-    
+            print(modelTest.W)
     x2 = basis2(x)
     modelTest.fit(x2,y,w_init=np.ones((x2.shape[1], 1)))
     
@@ -53,6 +53,7 @@ def checker_t2_p1():
             basis2_checker = "Pass"
         else:
             basis2_checker = "Fail"
+            print(modelTest.W)
     
     x3 = basis3(x)
     modelTest.fit(x3,y,w_init=np.ones((x3.shape[1], 1)))
@@ -65,6 +66,7 @@ def checker_t2_p1():
             basis3_checker = "Pass"
         else:
             basis3_checker = "Fail"
+            print(modelTest.W)
     
     print("Your test case results are, for basis 1, 2, and 3 respectively:", basis1_checker, basis2_checker, basis3_checker)
 

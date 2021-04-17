@@ -26,14 +26,29 @@ def get_cumul_var(mnist_pics,
         num_leading_components, int:
             The variable representing k, the number of PCA components to use.
     """
-
+    
     # TODO: compute PCA on input mnist_pics
-
+    pmean=np.mean(mnist_pics,0)
+    p_prime=mnist_pics-pmean
+    C = np.cov(p_prime.T)
+    D, U = np.linalg.eigh(C)
+    
+    idx = np.abs(D).argsort(); idx=idx[::-1];  # sort the eigenvalues
+    D = 1*D[idx]
+    U = 1*U[:,idx]
+    
+ 
     # TODO: return a (num_leading_components, ) numpy array with the cumulative
     # fraction of variance for the leading k components
     ret = np.zeros(num_leading_components)
+    sumD=np.sum(D)
+    print("dimensionsumD:",sumD.shape)
+    ret=D/np.sum(D)
+    ret=ret[0:num_leading_components]
+    
+    
 
-    return ret
+    return D[0:num_leading_components],ret,U,p_prime
 
 # Load MNIST.
 mnist_pics = np.load("data/images.npy")
@@ -44,13 +59,50 @@ mnist_pics = np.reshape(mnist_pics, newshape=(num_images, height * width))
 
 num_leading_components = 500
 
-cum_var = get_cumul_var(
+D,cum_var,U,p_prime = get_cumul_var(
     mnist_pics=mnist_pics,
     num_leading_components=num_leading_components)
 
-# Example of how to plot an image.
-plt.figure()
-plt.imshow(mnist_pics[0].reshape(28,28), cmap='Greys_r')
-plt.show()
 
+print("U:",U.shape,"D:",D.shape)
+figure,ax=plt.subplots(figsize=(10,3))
+
+ax=plt.subplot(1,2,1)
+plt.plot(np.arange(num_leading_components),D)
+plt.xlabel('components')
+plt.ylabel('eigenvalue')
+ax=plt.subplot(1,2,2)
+plt.plot(np.arange(num_leading_components),[np.sum(cum_var[:i])*100 for i in range(num_leading_components)])
+plt.xlabel('components')
+plt.ylabel('cumulative variance explained (%)')
+
+
+# Example of how to plot an image.
+meanpic=np.mean(mnist_pics,0)
+print("meanpicshape",meanpic.shape)
+figure,ax=plt.subplots(figsize=(10,15))
+ax=plt.subplot(4,3,1)
+plt.imshow(np.mean(mnist_pics,0).reshape(28,28), cmap='Greys_r')
+plt.title('mean image')
+for i in range(10):
+    ax=plt.subplot(4,3,i+2)
+    plt.imshow(U[:,i].reshape(28,28), cmap='Greys_r')
+    plt.title('component '+str(i+1))
+
+print("ndata:", len(mnist_pics))
+Lmean=np.sum((mnist_pics-meanpic)**2)/len(mnist_pics)
+print('Reconstruction Error mean:',Lmean)
+
+
+z=U.T.dot(p_prime.T)
+print("zshape:",z.shape)
+ncomp=10
+sum10comp=0
+UL=U[:,:ncomp]
+sum10comp=UL.dot(z[:ncomp,:])
+    
+print("sum10compshape:",sum10comp.shape)
+
+Lmean10=np.sum((sum10comp-p_prime.T)**2)/len(mnist_pics)
+print('Reconstruction 10components Error mean:',Lmean10)
 

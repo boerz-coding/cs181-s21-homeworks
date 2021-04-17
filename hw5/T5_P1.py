@@ -84,21 +84,55 @@ class EM_Geometric(object):
             The log-likelihood of current set of labels (according to a geometric distribution)
         '''
         # TODO: Implement the log-likelihood function
-        pass
+        N=len(self.data)
+        K=self.num_clusters
+        L=0
+        for n in range(N):
+            for k in range(K):
+                L+=self.q[n,k]*np.log((1-self.probs[k])**(self.data[n]-1)*self.probs[k]*self.pis[k])
+
+        return L
 
     def e_step(self):
         '''
         Run the expectation step, calculating the soft assignments based on current parameter estimates
         '''
-        # TODO: Implement the expectation step
-        pass
+        N=len(self.data)
+        K=self.num_clusters
+        for n in range(N):
+            for k in range(K):
+                self.q[n,k]=self.pis[k]*(1-self.probs[k])**(self.data[n]-1)*self.probs[k]
+        for n in range(N):
+            #sumq=np.sum(self.q[n,:])
+            #print("qn,sumq and its shape",self.q[n,:],sumq,sumq.shape)
+            self.q[n,:]=self.q[n,:]/np.sum(self.q[n,:])
+            
+        
+                
+       
 
     def m_step(self):
         '''
         Run the maximization step, calculating parameter estimates based on current soft assignments
         '''
-        # TODO: Implement the maximization step
-        pass
+        N=len(self.data)
+        K=self.num_clusters
+        
+        
+        for k in range(K):
+            thetaktemp=0
+            probtemp=0
+            
+            for n in range(N):
+                thetaktemp+= self.q[n,k]
+                probtemp+=self.q[n,k]*self.data[n]
+                
+            self.pis[k]=thetaktemp/N
+            self.probs[k]=thetaktemp/probtemp
+            
+        
+                
+        
 
     def get_labels(self):
         '''
@@ -119,7 +153,7 @@ def generate_geom_data(num_data, cluster_probs):
 
 def main():
     # TODO: Toggle these between 10 / 1000 and [0.1, 0.5, 0.9] / [0.1, 0.2, 0.9]
-    num_data = 10
+    num_data = 1000
     cluster_probs = [0.1, 0.5, 0.9]
 
     # Do not edit the below code, it is to help you run the algorithm
